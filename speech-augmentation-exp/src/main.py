@@ -6,9 +6,9 @@ from utils import load_audio, save_audio, make_output_filename
 from augment import apply_augmentation
 from evaluate import transcribe_audio, compute_wer, compute_cer
 
-RAW_DIR = "data/raw"
-OUTPUT_DIR = "data/augmented"
-TRANSCRIPT_PATH = "data/transcripts/transcripts.csv"
+RAW_DIR = "../data/raw"
+OUTPUT_DIR = "../data/augmented"
+TRANSCRIPT_PATH = "../data/transcripts/transcripts.csv"
 
 results = []
 
@@ -52,6 +52,6 @@ for _, row in metadata.iterrows():
             )
 
 results_df = pd.DataFrame(results)
-results_df.to_csv("results/metrics.csv", index=False)
+results_df.to_csv("../results/metrics.csv", index=False)
 
 print("Finished experiment.")
