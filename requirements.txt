@@ -1,0 +1,8 @@
+librosa
+soundfile
+numpy
+scipy
+pandas
+jiwer
+openai-whisper
+torch
