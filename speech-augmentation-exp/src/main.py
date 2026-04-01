@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from tqdm import tqdm
 
 from config import SAMPLE_RATE, AUGMENTATIONS
 from utils import load_audio, save_audio, make_output_filename
@@ -14,42 +15,46 @@ results = []
 
 metadata = pd.read_csv(TRANSCRIPT_PATH)
 
-for _, row in metadata.iterrows():
-    filename = row["filename"]
-    reference_text = row["text"]
+total_tasks = len(metadata) * sum(len(params) for params in AUGMENTATIONS.values())
 
-    audio_path = os.path.join(RAW_DIR, filename)
+with tqdm(total=total_tasks, desc="Running augmentations", unit="aug") as pbar:
+    for _, row in metadata.iterrows():
+        filename = row["filename"]
+        reference_text = row["text"]
 
-    audio, sr = load_audio(audio_path, sr=SAMPLE_RATE)
+        audio_path = os.path.join(RAW_DIR, filename)
+        audio, sr = load_audio(audio_path, sr=SAMPLE_RATE)
 
-    for aug_type, param_list in AUGMENTATIONS.items():
-        for param in param_list:
+        for aug_type, param_list in AUGMENTATIONS.items():
+            for param in param_list:
+                augmented_audio = apply_augmentation(audio, sr, aug_type, param)
 
-            augmented_audio = apply_augmentation(audio, sr, aug_type, param)
+                output_filename = make_output_filename(filename, aug_type, param)
+                output_folder = os.path.join(OUTPUT_DIR, aug_type)
+                output_path = os.path.join(output_folder, output_filename)
 
-            output_filename = make_output_filename(filename, aug_type, param)
-            output_folder = os.path.join(OUTPUT_DIR, aug_type)
-            output_path = os.path.join(output_folder, output_filename)
+                save_audio(augmented_audio, sr, output_path)
 
-            save_audio(augmented_audio, sr, output_path)
+                predicted_text = transcribe_audio(output_path)
 
-            predicted_text = transcribe_audio(output_path)
+                wer_score = compute_wer(reference_text, predicted_text)
+                cer_score = compute_cer(reference_text, predicted_text)
 
-            wer_score = compute_wer(reference_text, predicted_text)
-            cer_score = compute_cer(reference_text, predicted_text)
+                results.append(
+                    {
+                        "filename": filename,
+                        "aug_type": aug_type,
+                        "param": param,
+                        "output_path": output_path,
+                        "reference": reference_text,
+                        "prediction": predicted_text,
+                        "wer": wer_score,
+                        "cer": cer_score,
+                    }
+                )
 
-            results.append(
-                {
-                    "filename": filename,
-                    "aug_type": aug_type,
-                    "param": param,
-                    "output_path": output_path,
-                    "reference": reference_text,
-                    "prediction": predicted_text,
-                    "wer": wer_score,
-                    "cer": cer_score,
-                }
-            )
+                pbar.update(1)
+                pbar.set_postfix(file=filename, aug=aug_type, param=param)
 
 results_df = pd.DataFrame(results)
 results_df.to_csv("../results/metrics.csv", index=False)
