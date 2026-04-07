@@ -14,12 +14,9 @@ def save_audio(audio, sr, output_path):
 
 
 def format_param_for_filename(param):
-    """
-    แปลง param ให้เหมาะกับการเอาไปใส่ชื่อไฟล์
-    """
     if isinstance(param, dict):
         pause_prob = str(param["pause_prob"]).replace(".", "_")
-        pause_range = param["pause_ms_range"]
+        pause_range = param["pause_ms"]
         return f"p{pause_prob}_d{pause_range[0]}-{pause_range[1]}"
 
     elif isinstance(param, float):

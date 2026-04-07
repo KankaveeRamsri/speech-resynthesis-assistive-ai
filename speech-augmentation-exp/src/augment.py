@@ -86,9 +86,6 @@ def apply_pause_insertion(audio, sr, pause_prob, pause_ms_range, frame_ms=50):
 
 
 def apply_augmentation(audio, sr, aug_type, param):
-    """
-    ฟังก์ชันหลักสำหรับเลือก augmentation ตามประเภท
-    """
     if aug_type == "lowpass":
         return apply_lowpass(audio, sr, param)
 
@@ -103,10 +100,7 @@ def apply_augmentation(audio, sr, aug_type, param):
 
     elif aug_type == "pause_insertion":
         return apply_pause_insertion(
-            audio,
-            sr,
-            pause_prob=param["pause_prob"],
-            pause_ms_range=param["pause_ms_range"],
+            audio, sr, pause_prob=param["pause_prob"], pause_ms_range=param["pause_ms"]
         )
 
     else:
