@@ -95,13 +95,13 @@ def apply_augmentation(audio, sr, aug_type, param):
     elif aug_type == "timestretch":
         return apply_timestretch(audio, param)
 
-    elif aug_type == "pitch":
+    elif aug_type == "pitch_compression":
         return apply_pitch_compression(audio, sr, param)
 
     elif aug_type == "noise":
         return apply_noise(audio, param)
 
-    elif aug_type == "pause":
+    elif aug_type == "pause_insertion":
         return apply_pause_insertion(
             audio,
             sr,
